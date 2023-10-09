@@ -24,7 +24,9 @@ class Player extends SpriteAnimationGroupComponent with HasGameRef<PixelAdventur
   
   //fps   
   final double stepTime = 0.05;
-  final double moveSpeed = 100;
+  final double moveSpeed = 10;
+  double horizontalMovement = 0;
+
   Vector2 velocity = Vector2(0, 0);
   bool facingRight = true;
   
@@ -42,8 +44,13 @@ class Player extends SpriteAnimationGroupComponent with HasGameRef<PixelAdventur
   
   @override
   bool onKeyEvent(RawKeyEvent event, Set<LogicalKeyboardKey> keysPressed) {
-    // TODO: implement onKeyEvent
+    horizontalMovement = 0;
     final isLeftKeyPressed = keysPressed.contains(LogicalKeyboardKey.keyA) || keysPressed.contains(LogicalKeyboardKey.arrowLeft);
+    final isRightKeyPressed = keysPressed.contains(LogicalKeyboardKey.keyD) || keysPressed.contains(LogicalKeyboardKey.arrowRight);
+
+    horizontalMovement += isLeftKeyPressed ? -1 : 0;
+    horizontalMovement += isRightKeyPressed ? 1 : 0;
+
     return super.onKeyEvent(event, keysPressed);
   }
 
@@ -69,32 +76,26 @@ class Player extends SpriteAnimationGroupComponent with HasGameRef<PixelAdventur
       ),
     );
   }
+  
+  void _updatePlayerState() {
+    PlayerState playerState = PlayerState.idle;
 
-  void _updatePlayerMovement(double dt){
-    double dirX = 0.0;
-    switch (playerDirection){
-      case PlayerDirection.left: 
-        if (facingRight) {
-          flipHorizontallyAroundCenter();
-          facingRight = false;
-        }
-        dirX -= moveSpeed;
-        current = PlayerState.running;
-      break;
-      case PlayerDirection.right:
-        current = PlayerState.running;
-        dirX += moveSpeed;
-        if (!facingRight) {
-          facingRight = true;
-        }
-      break;
-      case PlayerDirection.none:
-        current = PlayerState.idle;
-      break;
-    default:
+    if (velocity.x < 0 && scale.x > 0) {
+      flipHorizontallyAroundCenter();
+    } else if (velocity.x > 0 && scale.x < 0) {
+      flipHorizontallyAroundCenter();
     }
 
-    velocity = Vector2(dirX,0.0);
-    position += velocity;
+    // Check if moving, set running
+    if (velocity.x > 0 || velocity.x < 0) playerState = PlayerState.running;
+
+    current = playerState;
   }
+  void _updatePlayerMovement(double dt) {
+
+    velocity.x = horizontalMovement * moveSpeed;
+    position.x += velocity.x * dt;
+  }
+
+
 } 
