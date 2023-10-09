@@ -5,12 +5,12 @@ import 'package:pixel_adventure/pixel_adventure.dart';
 import 'package:flame/flame.dart';
 
 
-void main() {
+void main() async {
   //wait for flutter to intialize
   WidgetsFlutterBinding.ensureInitialized();
   
-  Flame.device.fullScreen();
-  Flame.device.setLandscape();
+  await Flame.device.fullScreen();
+  await Flame.device.setLandscape();
 
   PixelAdventure game = PixelAdventure();
   runApp(GameWidget(game: kDebugMode ? PixelAdventure() : game));
